@@ -1,4 +1,6 @@
 # /* Copyright (C) 2010 Michael LeMay
+#  *    Fixes and additional command for Ninja Pan/Tilt
+#  *	Copyright (C) 2013 Burns Fisher
 #  * 
 #  * This program is free software; you can redistribute it and/or modify
 #  * it under the terms of the GNU General Public License as published by
@@ -17,6 +19,8 @@
 #  * Communications driver for X10 CM19A RF home automation transceiver
 #  */
 
+
+
 import usb.core
 import usb.util
 import sys
@@ -25,7 +29,7 @@ import traceback
 import os
 import time
 
-DEBUG = 1
+DEBUG = 0
 
 # /**********************/
 # /*** X10 OPERATIONS ***/
@@ -169,22 +173,20 @@ class X10HACommand:
         unitCode = UnitCodes[self.unit-1]
         cmdCode = CmdCodes[self.cmd]
 
-        sys.stderr.write('xmit house='+str(self.house)+' cmd='+str(self.cmd)+'\n');
+        if DEBUG:
+	    sys.stderr.write('xmit house='+str(self.house)+' cmd='+str(self.cmd)+'\n');
 
         cmd = []
         if isCamCode(cmdCode):
 	    outcode=HouseCodeToCamCode[houseCode]
-	    sys.stderr.write('cmd is '+self.cmd+' outcode is '+str(outcode)+'\n');
+	    if DEBUG:
+	        sys.stderr.write('cmd is '+self.cmd+' outcode is '+str(outcode)+'\n');
 	    if (self.cmd =='CMD_CTR'):
-		sys.stderr.write('Found center command\n');
 		outcode = outcode + 0x10 #Center has the first house code incremented
             cmd += [CAM_CMD_PFX]
             cmd += [(cmdCode >> 8) | outcode]
             cmd += [cmdCode & 0x0FF]
             cmd += [houseCode]
-	    sys.stderr.write('CmdCode '+str(cmdCode)+'\n');
-	    sys.stderr.write('HouseCode '+str(houseCode)+'\n');
-	    sys.stderr.write('Cmd Str'+str(cmd)+'\n');
         else:
             cmd += [NORM_CMD_PFX]
             cmd += [(unitCode >> 8) | houseCode]
@@ -314,8 +316,6 @@ class ReceiveThread(threading.Thread):
         houseCode = buf[2]
         unitCode = UnitCodes[0]
 
-        sys.stderr.write('procCamCmd gets '+str(buf)+'\n')
-	sys.stderr.write('cmdCode is '+str(cmdCode)+', houseCode is '+str(houseCode)+'\n') 
         curCmd = X10HACommand(codeToCmd(cmdCode), houseCodeToChar(houseCode), unitCodeToInt(unitCode)).tostr()
         self.procCmd(curCmd)
 
@@ -325,9 +325,6 @@ class ReceiveThread(threading.Thread):
             if dat[0] == NORM_CMD_PFX:
                 self.procNormCmd(dat[1:])
             elif dat[0] == CAM_CMD_PFX:
-		if DEBUG:
-            	    print 'Received CAM command\n'
-		    print '...and it is %x %x %x\n' % (dat[1],dat[2],dat[3])
                 self.procCamCmd(dat[1:])
         except usb.USBError:
             pass # Catch timeout exception. Unfortunately, other exception types are not distinguished, so we just hope they don't occur.
