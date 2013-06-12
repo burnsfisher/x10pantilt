@@ -17,6 +17,9 @@
 #  * Communications driver for X10 CM19A RF home automation transceiver
 #  */
 
+# Modifications to support pan/tilt
+#      Copyright (C) 2013 Burns Fisher
+#      Also under the terms of GPL 2.
 import usb.core
 import usb.util
 import sys
@@ -192,7 +195,7 @@ def X10Send(inp, outEp):
         return
 
     # // shortest command is pan/tilt (2 bytes + newline)
-    if (len(inp) < 3):
+    if (len(inp) < 2):
         raise ValueError('Command is too short, ignoring: ' + str(len(inp)))
 
     if (len(inp) > MAX_CMD_LEN):
@@ -237,7 +240,7 @@ def X10Send(inp, outEp):
     else:
         if ((cmd == 'CMD_ON') or (cmd == 'CMD_OFF')):
             raise ValueError('On and off commands require a unit number')
-
+	else: unit = 1
 
     cmd = X10HACommand(cmd, house, unit)
     cmd.xmit(outEp)
