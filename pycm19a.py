@@ -17,9 +17,6 @@
 #  * Communications driver for X10 CM19A RF home automation transceiver
 #  */
 
-# Modifications to support pan/tilt
-#      Copyright (C) 2013 Burns Fisher
-#      Also under the terms of GPL 2.
 import usb.core
 import usb.util
 import sys
@@ -28,7 +25,7 @@ import traceback
 import os
 import time
 
-DEBUG = 0
+DEBUG = 1
 
 # /**********************/
 # /*** X10 OPERATIONS ***/
@@ -113,6 +110,11 @@ CmdCodes = {
 	'CMD_RIGHT'   : 0x0661,
 	'CMD_DOWN'    : 0x0863,
 	'CMD_LEFT'    : 0x0560,
+	'CMD_CTR'     : 0x016c,
+	'CMD_P1'      : 0x0964,
+	'CMD_P2'      : 0x0b66,
+	'CMD_P3'      : 0x0d68,
+	'CMD_P4'      : 0x0f6a,
 }
 
 CmdCodeDict = {
@@ -122,6 +124,11 @@ CmdCodeDict = {
     'd' : 'CMD_DOWN',
     'l' : 'CMD_LEFT',
     'r' : 'CMD_RIGHT',
+    'c' : 'CMD_CTR',
+    '1' : 'CMD_P1',
+    '2' : 'CMD_P2',
+    '3' : 'CMD_P3',
+    '4' : 'CMD_P4',
     'b' : 'CMD_BRIGHT',
     's' : 'CMD_DIM'
 }
@@ -162,12 +169,22 @@ class X10HACommand:
         unitCode = UnitCodes[self.unit-1]
         cmdCode = CmdCodes[self.cmd]
 
+        sys.stderr.write('xmit house='+str(self.house)+' cmd='+str(self.cmd)+'\n');
+
         cmd = []
         if isCamCode(cmdCode):
+	    outcode=HouseCodeToCamCode[houseCode]
+	    sys.stderr.write('cmd is '+self.cmd+' outcode is '+str(outcode)+'\n');
+	    if (self.cmd =='CMD_CTR'):
+		sys.stderr.write('Found center command\n');
+		outcode = outcode + 0x10 #Center has the first house code incremented
             cmd += [CAM_CMD_PFX]
-            cmd += [(cmdCode >> 8) | HouseCodeToCamCode[houseCode]]
+            cmd += [(cmdCode >> 8) | outcode]
             cmd += [cmdCode & 0x0FF]
             cmd += [houseCode]
+	    sys.stderr.write('CmdCode '+str(cmdCode)+'\n');
+	    sys.stderr.write('HouseCode '+str(houseCode)+'\n');
+	    sys.stderr.write('Cmd Str'+str(cmd)+'\n');
         else:
             cmd += [NORM_CMD_PFX]
             cmd += [(unitCode >> 8) | houseCode]
@@ -296,7 +313,9 @@ class ReceiveThread(threading.Thread):
         cmdCode = (((buf[0] & 0x0F) << 8) | buf[1])
         houseCode = buf[2]
         unitCode = UnitCodes[0]
-        
+
+        sys.stderr.write('procCamCmd gets '+str(buf)+'\n')
+	sys.stderr.write('cmdCode is '+str(cmdCode)+', houseCode is '+str(houseCode)+'\n') 
         curCmd = X10HACommand(codeToCmd(cmdCode), houseCodeToChar(houseCode), unitCodeToInt(unitCode)).tostr()
         self.procCmd(curCmd)
 
@@ -306,6 +325,9 @@ class ReceiveThread(threading.Thread):
             if dat[0] == NORM_CMD_PFX:
                 self.procNormCmd(dat[1:])
             elif dat[0] == CAM_CMD_PFX:
+		if DEBUG:
+            	    print 'Received CAM command\n'
+		    print '...and it is %x %x %x\n' % (dat[1],dat[2],dat[3])
                 self.procCamCmd(dat[1:])
         except usb.USBError:
             pass # Catch timeout exception. Unfortunately, other exception types are not distinguished, so we just hope they don't occur.
@@ -336,7 +358,9 @@ if Dev is None:
     raise ValueError('Device not found')
 
 sys.stderr.write('Discovered X10 CM19A.  Attempting to set its configuration...\n')
-
+try:
+    Dev.detach_kernel_driver(0)
+except: pass
 # select first configuration:
 try:
     Dev.set_configuration()
