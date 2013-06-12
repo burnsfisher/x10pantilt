@@ -1,7 +1,9 @@
 X10 CM19A Python driver
 by Michael LeMay
 
-* Please note that I am not affiliated with X10 in any way, nor is this driver.
+Mods to support pan/tilt (Ninja) by Burns Fisher
+
+* Please note that we are not affiliated with X10 in any way, nor is this driver.
 * X10 is a Registered Trademark of X10 Wireless Technology, Inc.
 * By using this software you agree to the terms of the license agreement contained within the file named LICENSE in the same directory as this file.
 
@@ -26,13 +28,18 @@ For example:
  - to turn off device d8: -d8
  - etc.
 
-[udlr][a-p]
+[udlrc1234][a-p]
 
 Ninja Pan'n'Tilt commands:
  u = up
  d = down
  l = left
  r = right
+ c = center
+ 1 = Position 1
+ 2 = Position 2
+ 3 = Position 3
+ 4 = Position 4
 
 [bs][a-p][01][0-9]
 Lamp module commands:
