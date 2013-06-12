@@ -1,0 +1,50 @@
+X10 CM19A Python driver
+by Michael LeMay
+
+* Please note that I am not affiliated with X10 in any way, nor is this driver.
+* X10 is a Registered Trademark of X10 Wireless Technology, Inc.
+* By using this software you agree to the terms of the license agreement contained within the file named LICENSE in the same directory as this file.
+
+This driver supports the X10 CM19A USB RF Transceiver.
+To install, simply follow these steps:
+
+1. Uninstall any version of pyusb that may already be installed on your computer.  Currently, Linux distributions often include a version of pyusb that is too old, and it conflicts with the new one.
+2. Install pyusb 1.0 as described on http://pyusb.sf.net.
+3. Plugin the X10 CM19A transceiver
+4. Grant access to the appropriate USB device to your preferred user account
+5. As that user, run python pycm19a.py
+
+(click the "X10..." link in the sidebar at http://m.lemays.org for a more detailed tutorial)
+
+To control your transceiver, format your commands as
+described by these regular expressions:
+
+[-+][a-p][01][1-9]
+
+For example:
+ - to turn on device c16: +c16
+ - to turn off device d8: -d8
+ - etc.
+
+[udlr][a-p]
+
+Ninja Pan'n'Tilt commands:
+ u = up
+ d = down
+ l = left
+ r = right
+
+[bs][a-p][01][0-9]
+Lamp module commands:
+ b = brighten
+ s = soften
+
+Enjoy!  Please send bug reports and patches to m at lemays dot org.
+
+Special thanks to Neil Cherry of the Linux-HA project for giving
+me some code to jump off of while developing the Linux Kernel driver
+that preceded this driver.
+Here's his page: http://home.comcast.net/~ncherry/common/cm19a/cm19a.html
+
+Thanks also to the others that have given me bug reports and feedback
+on this driver and its ancestors!

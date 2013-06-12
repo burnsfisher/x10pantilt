@@ -1,0 +1,13 @@
+=== X10 CM19A Python Driver ===
+
+2011-01-04  Scott Cheezem
+
+	* pycm19a.py: Fixed excessive CPU utilization by inserting a sleep in the main loop.
+
+2010-10-10  Michael LeMay
+
+	* pycm19a.py: Flush output buffer after each received command is output, to make it work with named pipes.  Convert syntax to be compatible with Python 3.1.
+
+2010-10-09  Michael LeMay
+
+	* all: Initial release
