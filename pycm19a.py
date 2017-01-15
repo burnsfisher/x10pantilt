@@ -1,6 +1,6 @@
 # /* Copyright (C) 2010 Michael LeMay
 #  *    Fixes and additional command for Ninja Pan/Tilt
-#  *	Copyright (C) 2013 Burns Fisher
+#  *	Copyright (C) 2013,2017 Burns Fisher
 #  * 
 #  * This program is free software; you can redistribute it and/or modify
 #  * it under the terms of the GNU General Public License as published by
@@ -134,7 +134,8 @@ CmdCodeDict = {
     '3' : 'CMD_P3',
     '4' : 'CMD_P4',
     'b' : 'CMD_BRIGHT',
-    's' : 'CMD_DIM'
+    's' : 'CMD_DIM',
+    'x' : 'CMD_EXIT'
 }
 
 def parseCmd(c):
@@ -223,6 +224,8 @@ def X10Send(inp, outEp):
     i = 0
     cmd = parseCmd(inp[i])
     i = i + 1
+    if (cmd == 'CMD_EXIT'):
+	os._exit(1)
 
     if DEBUG:
         sys.stderr.write('got command ' + cmd + '\n')
@@ -366,8 +369,13 @@ except:
     raise
 
 # find output endpoint:
+
+cfg = Dev.get_active_configuration()
+intf = cfg[(0,0)]
+
+
 OutEp = usb.util.find_descriptor(
-        Dev.get_interface_altsetting(),
+        intf,
         custom_match = \
             lambda e: \
                 usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_OUT
@@ -376,8 +384,12 @@ OutEp = usb.util.find_descriptor(
 sys.stderr.write('Connected to output endpoint: ' + str(OutEp.bEndpointAddress) + '\n')
 
 # find input endpoint:
+
+cfg = Dev.get_active_configuration()
+intf = cfg[(0,0)]
+
 InEp = usb.util.find_descriptor(
-        Dev.get_interface_altsetting(),
+        intf,
         custom_match = \
             lambda e: \
                 usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_IN
@@ -389,14 +401,24 @@ init_remotes(OutEp)
 
 rcvThr = ReceiveThread(InEp, OutEp)
 rcvThr.start()
+#
+# You can pass in a single X10 command (as described in the documentation) as
+# an argument, or you can pass no argument, and then type any number of
+# x10 commands to stdin after starting the program.  The command 'x' exits
+# with no message or traceback.
 
 if __name__ == '__main__':
     try:
-        while True:
-            line = sys.stdin.readline()
-            if len(line)>0:
-                X10Send(line[0:len(line)-1], OutEp)
-            time.sleep(0.1)
+        if len(sys.argv)==1:
+            while True:
+                line = sys.stdin.readline()
+	        if line[0] == 'x':
+		    os._exit(1)
+                if len(line)>0:
+                    X10Send(line[0:len(line)-1], OutEp)
+                time.sleep(0.1)
+        X10Send(sys.argv[1],OutEp)
+	os._exit(1)
     except:
         traceback.print_exc()
         sys.stderr.write('Exiting X10 CM19A driver.\n')
