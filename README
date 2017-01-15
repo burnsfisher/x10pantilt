@@ -2,6 +2,7 @@ X10 CM19A Python driver
 by Michael LeMay
 
 Mods to support pan/tilt (Ninja) by Burns Fisher
+Further fixes and mods by Burns Fisher
 
 * Please note that we are not affiliated with X10 in any way, nor is this driver.
 * X10 is a Registered Trademark of X10 Wireless Technology, Inc.
@@ -15,6 +16,9 @@ To install, simply follow these steps:
 3. Plugin the X10 CM19A transceiver
 4. Grant access to the appropriate USB device to your preferred user account
 5. As that user, run python pycm19a.py
+6. You can give a single X10 command (as shown below) on the command line.  Pycm19a will
+  execute that command and exit.  If you put nothing on the command line, it will
+  read commands from stdin as usual.
 
 (click the "X10..." link in the sidebar at http://m.lemays.org for a more detailed tutorial)
 
@@ -45,6 +49,8 @@ Ninja Pan'n'Tilt commands:
 Lamp module commands:
  b = brighten
  s = soften
+
+ x = exit quietly
 
 Enjoy!  Please send bug reports and patches to m at lemays dot org.
 

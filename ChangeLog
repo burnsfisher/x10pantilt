@@ -1,5 +1,14 @@
 === X10 CM19A Python Driver ===
 
+2017-01-15  Burns Fisher
+	* pycm19a.py: Fixed problem where it did not work with the latest version
+  of pyusb
+	Added command 'x' to exit quietly
+	Added ability to execute a single command on the command line.
+
+2013-06-13  Burns Fisher
+	* pycm19a.py: Added pan and tilt commands for the Ninja X10 device
+
 2011-01-04  Scott Cheezem
 
 	* pycm19a.py: Fixed excessive CPU utilization by inserting a sleep in the main loop.
