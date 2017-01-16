@@ -414,12 +414,12 @@ if __name__ == '__main__':
             while True:
                 line = sys.stdin.readline()
                 if line[0] == 'x':
-                    os._exit(1)
+                    os._exit(0)
                 if len(line)>0:
                     X10Send(line[0:len(line)-1], OutEp)
                 time.sleep(0.1)
         X10Send(sys.argv[1],OutEp)
-        os._exit(1)
+        os._exit(0)
     except:
         traceback.print_exc()
         sys.stderr.write('Exiting X10 CM19A driver.\n')
