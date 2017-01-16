@@ -16,19 +16,43 @@ This driver supports the X10 CM19A USB RF Transceiver.
 Installation
 ------------
 
+### Microsoft Windows 10
+1. [Install Chocolatey](https://chocolatey.org/install)
+2. Run the following commands in PowerShell opened as administrator
+   * `choco install zadig`
+   * `zadig` (with CM19A plugged into computer)
+      * Enable "Options -> List All Devices"
+      * Look for a device called "USB Transceiver" with USB ID `0BC7 0002`
+      * Select libusb-win32 driver
+      * Press "Replace Driver"
+      * Exit Zadig
+   * `choco install python`
+3. Run the following commands in PowerShell opened as normal user
+   * `pip3 install pyusb`
+   * `python pycm19a.py` (see "Command format" section below)
+
+### Linux
 1. Uninstall any version of pyusb that may already be installed on your
    computer.  Currently, Linux distributions often include a version of pyusb
    that is too old, and it conflicts with the new one.
 2. Install pyusb 1.0 as described on http://pyusb.sf.net.
 3. Plugin the X10 CM19A transceiver
 4. Grant access to the appropriate USB device to your preferred user account
-5. As that user, run python pycm19a.py (see "Command format" section below)
-6. You can give a single X10 command (as shown below) on the command line.
-   Pycm19a will execute that command and exit.  If you put nothing on the
-   command line, it will read commands from stdin as usual.
+   * Execute `sudo lsusb` to list devices.
+   * Look for a device with the name "X10 Wireless Technology, Inc. Firecracker
+     Interface" and USB ID `0bc7:0002`.
+   * Take note of the "Bus" and "Device" IDs.
+   * Execute `chmod 600 /dev/bus/usb/<bus ID>/<device ID>` to make the device
+     readable and writable by its owner.
+   * Execute `chown <user> /dev/bus/usb/<bus ID>/<device ID>` to set your
+     preferred user account as the owner of the device.
+5. As that user, run `python pycm19a.py` (see "Command format" section below)
 
 Command format (with examples)
 ------------------------------
+You can give a single X10 command (as shown below) on the command line.
+Pycm19a will execute that command and exit.  If you put nothing on the
+command line, it will read commands from stdin as usual.
 
 Each house code (`<house>`) is a character between `a` and `p`.
 
