@@ -47,10 +47,10 @@ UNIT_MAX = 16
 #  * House codes
 #  */
 HouseCodes = {
-	'a' : 0x060, 'b' : 0x070, 'c' : 0x040, 'd' : 0x050,
-	'e' : 0x080, 'f' : 0x090, 'g' : 0x0A0, 'h' : 0x0B0,
-	'i' : 0x0E0, 'j' : 0x0F0, 'k' : 0x0C0, 'l' : 0x0D0,
-	'm' : 0x000, 'n' : 0x010, 'o' : 0x020, 'p' : 0x030
+    'a' : 0x060, 'b' : 0x070, 'c' : 0x040, 'd' : 0x050,
+    'e' : 0x080, 'f' : 0x090, 'g' : 0x0A0, 'h' : 0x0B0,
+    'i' : 0x0E0, 'j' : 0x0F0, 'k' : 0x0C0, 'l' : 0x0D0,
+    'm' : 0x000, 'n' : 0x010, 'o' : 0x020, 'p' : 0x030
 }
 
 def houseCodeToChar(code):
@@ -105,20 +105,20 @@ def unitCodeToInt(code):
 #  */
 CmdCodes = {
 #	/* Standard 5-byte commands: */
-	'CMD_ON'      : 0x000, # /* Turn on unit */
-	'CMD_OFF'     : 0x020, # /* Turn off unit */
-	'CMD_DIM'     : 0x098, # /* Dim lamp */
-	'CMD_BRIGHT'  : 0x088, # /* Brighten lamp */
+    'CMD_ON'      : 0x000, # /* Turn on unit */
+    'CMD_OFF'     : 0x020, # /* Turn off unit */
+    'CMD_DIM'     : 0x098, # /* Dim lamp */
+    'CMD_BRIGHT'  : 0x088, # /* Brighten lamp */
 #	/* Pan'n'Tilt 4-byte commands: */
-	'CMD_UP'      : 0x0762,
-	'CMD_RIGHT'   : 0x0661,
-	'CMD_DOWN'    : 0x0863,
-	'CMD_LEFT'    : 0x0560,
-	'CMD_CTR'     : 0x016c,
-	'CMD_P1'      : 0x0964,
-	'CMD_P2'      : 0x0b66,
-	'CMD_P3'      : 0x0d68,
-	'CMD_P4'      : 0x0f6a,
+    'CMD_UP'      : 0x0762,
+    'CMD_RIGHT'   : 0x0661,
+    'CMD_DOWN'    : 0x0863,
+    'CMD_LEFT'    : 0x0560,
+    'CMD_CTR'     : 0x016c,
+    'CMD_P1'      : 0x0964,
+    'CMD_P2'      : 0x0b66,
+    'CMD_P3'      : 0x0d68,
+    'CMD_P4'      : 0x0f6a,
 }
 
 CmdCodeDict = {
@@ -175,15 +175,15 @@ class X10HACommand:
         cmdCode = CmdCodes[self.cmd]
 
         if DEBUG:
-	    sys.stderr.write('xmit house='+str(self.house)+' cmd='+str(self.cmd)+'\n');
+            sys.stderr.write('xmit house='+str(self.house)+' cmd='+str(self.cmd)+'\n')
 
         cmd = []
         if isCamCode(cmdCode):
-	    outcode=HouseCodeToCamCode[houseCode]
-	    if DEBUG:
-	        sys.stderr.write('cmd is '+self.cmd+' outcode is '+str(outcode)+'\n');
-	    if (self.cmd =='CMD_CTR'):
-		outcode = outcode + 0x10 #Center has the first house code incremented
+            outcode=HouseCodeToCamCode[houseCode]
+            if DEBUG:
+                sys.stderr.write('cmd is '+self.cmd+' outcode is '+str(outcode)+'\n')
+            if (self.cmd =='CMD_CTR'):
+                outcode = outcode + 0x10 #Center has the first house code incremented
             cmd += [CAM_CMD_PFX]
             cmd += [(cmdCode >> 8) | outcode]
             cmd += [cmdCode & 0x0FF]
@@ -225,7 +225,7 @@ def X10Send(inp, outEp):
     cmd = parseCmd(inp[i])
     i = i + 1
     if (cmd == 'CMD_EXIT'):
-	os._exit(1)
+        os._exit(1)
 
     if DEBUG:
         sys.stderr.write('got command ' + cmd + '\n')
@@ -262,7 +262,8 @@ def X10Send(inp, outEp):
     else:
         if ((cmd == 'CMD_ON') or (cmd == 'CMD_OFF')):
             raise ValueError('On and off commands require a unit number')
-	else: unit = 1
+        else:
+            unit = 1
 
     cmd = X10HACommand(cmd, house, unit)
     cmd.xmit(outEp)
@@ -412,13 +413,13 @@ if __name__ == '__main__':
         if len(sys.argv)==1:
             while True:
                 line = sys.stdin.readline()
-	        if line[0] == 'x':
-		    os._exit(1)
+                if line[0] == 'x':
+                    os._exit(1)
                 if len(line)>0:
                     X10Send(line[0:len(line)-1], OutEp)
                 time.sleep(0.1)
         X10Send(sys.argv[1],OutEp)
-	os._exit(1)
+        os._exit(1)
     except:
         traceback.print_exc()
         sys.stderr.write('Exiting X10 CM19A driver.\n')
